@@ -7,7 +7,7 @@ import { QuestionAttachmentList } from './question-attachment-list'
 import { QuestionBestAnswerChosenEvent } from '@/domain/forum/enterprise/events/question-best-answer-chosen-event'
 
 export interface QuestionProps {
-  authorId: UniqueEntityID
+  authorId: UniqueEntityID | string
   bestAnswerId?: UniqueEntityID | null
   title: string
   content: string
