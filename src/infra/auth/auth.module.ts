@@ -17,6 +17,9 @@ import { EnvModule } from "../env/env.module";
       useFactory(env: EnvService) {
         const privateKey = env.get('JWT_PRIVATE_KEY')
         const publicKey = env.get('JWT_PUBLIC_KEY')
+        console.log('Private Key:', privateKey);
+        console.log('Public Key:', publicKey);
+
 
         return {
           signOptions: { algorithm: 'RS256'},
