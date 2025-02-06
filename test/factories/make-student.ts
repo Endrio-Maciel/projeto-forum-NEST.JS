@@ -26,10 +26,10 @@ export function makeStudent(
 export class StudentFactory {
   constructor(private prisma: PrismaService) {}
 
-  async makePrismaStudio(data: Partial<Student> = {}) {
+  async makePrismaStudent(data: Partial<Student> = {}): Promise<Student> {
    
     const student = makeStudent(data)
-    return this.prisma.user.create({
+    await this.prisma.user.create({
       data: PrismaStudentMapper.toPrisma(student),
     })
 

@@ -31,10 +31,10 @@ export function makeAnswerComment(
 export class AnswerCommentFactory {
   constructor(private prisma: PrismaService) {}
 
-  async makePrismaStudio(data: Partial<AnswerCommentProps> = {}) {
+  async makePrismaAnswerComment(data: Partial<AnswerCommentProps> = {}): Promise<AnswerComment> {
    
     const answerComment = makeAnswerComment(data)
-    return this.prisma.comment.create({
+    await this.prisma.comment.create({
       data: PrismaAnswerCommentMapper.toPrisma(answerComment),
     })
 

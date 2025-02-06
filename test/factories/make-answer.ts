@@ -28,10 +28,11 @@ export function makeAnswer(
 export class AnswerFactory {
   constructor(private prisma: PrismaService) {}
 
-  async makePrismaStudio(data: Partial<AnswerProps> = {}) {
+  async makePrismaAnswer(data: Partial<AnswerProps> = {}): Promise<Answer> {
    
     const answer = makeAnswer(data)
-    return this.prisma.answer.create({
+
+    await this.prisma.answer.create({
       data: PrismaAnswerMapper.toPrisma(answer),
     })
 

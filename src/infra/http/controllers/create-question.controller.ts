@@ -22,8 +22,7 @@ constructor(
  
   @Post()
   async handle(
-  @Body(new ZodValidationPipe(createQuestionBodySchema))
-  body: CreateQuestionBodySchema,
+  @Body(bodyValidationPipe) body: CreateQuestionBodySchema,
   @CurrentUser() user: UserPayload,
 ) {
     const { title, content } = body
