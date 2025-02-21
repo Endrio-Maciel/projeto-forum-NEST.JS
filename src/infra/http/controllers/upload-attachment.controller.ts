@@ -12,19 +12,16 @@ export class UploadAttachmentController {
   async handle(
     @UploadedFile(
         new ParseFilePipe({
-            validators: [
-                
-                new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2, //2mb 
-                }),
-                
-                new FileTypeValidator({
-                    fileType: '.(png|jpg|jpeg|pdf)'
-                })
-            ],
-        }),
+          validators: [
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 2, //2mb 
+          }),
+          new FileTypeValidator({
+              fileType: '.(png|jpg|jpeg|pdf)'
+          })
+      ],
+      }),
     ) 
   file: Express.Multer.File) {
     console.log(file)
-   
   }
 }

@@ -1,41 +1,48 @@
-import { Either, left, right } from '@/core/either'
-import { QuestionCommentsRepository } from '@/domain/forum/application/repositories/question-comments-repository'
+import { InMemoryAnswerCommentsRepository } from 'test/repositories/in-memory-answer-comments-repository'
+import { DeleteAnswerCommentUseCase } from '@/domain/forum/application/use-cases/delete-answer-comment'
+import { makeAnswerComment } from 'test/factories/make-answer-comment'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { NotAllowedError } from '@/core/errors/errors/not-allowed-error'
-import { ResourceNotFoundError } from '@/core/errors/errors/resource-not-found-error'
-import { Injectable } from '@nestjs/common'
+import { InMemoryStudentsRepository } from 'test/repositories/in-memory-students-repository'
 
-interface DeleteQuestionCommentUseCaseRequest {
-  authorId: string
-  questionCommentId: string
-}
+let inMemoryAnswerCommentsRepository: InMemoryAnswerCommentsRepository
+let inMemoryStudentsRepository: InMemoryStudentsRepository
+let sut: DeleteAnswerCommentUseCase
 
-type DeleteQuestionCommentUseCaseResponse = Either<
-  ResourceNotFoundError | NotAllowedError,
-  null
->
+describe('Delete Answer Comment', () => {
+  beforeEach(() => {
+    inMemoryStudentsRepository = new InMemoryStudentsRepository()
+    inMemoryAnswerCommentsRepository = new InMemoryAnswerCommentsRepository()
 
-@Injectable()
-export class DeleteQuestionCommentUseCase {
-  constructor(private questionCommentsRepository: QuestionCommentsRepository) {}
+    sut = new DeleteAnswerCommentUseCase(inMemoryAnswerCommentsRepository)
+  })
 
-  async execute({
-    authorId,
-    questionCommentId,
-  }: DeleteQuestionCommentUseCaseRequest): Promise<DeleteQuestionCommentUseCaseResponse> {
-    const questionComment = await this.questionCommentsRepository.findById(
-      questionCommentId,
-    )
+  it('should be able to delete a answer comment', async () => {
+    const answerComment = makeAnswerComment()
 
-    if (!questionComment) {
-      return left(new ResourceNotFoundError())
-    }
+    await inMemoryAnswerCommentsRepository.create(answerComment)
 
-    if (questionComment.authorId.toString() !== authorId) {
-      return left(new NotAllowedError())
-    }
+    await sut.execute({
+      answerCommentId: answerComment.id.toString(),
+      authorId: answerComment.authorId.toString(),
+    })
 
-    await this.questionCommentsRepository.delete(questionComment)
+    expect(inMemoryAnswerCommentsRepository.items).toHaveLength(0)
+  })
 
-    return right(null)
-  }
-}
+  it('should not be able to delete another user answer comment', async () => {
+    const answerComment = makeAnswerComment({
+      authorId: new UniqueEntityID('author-1'),
+    })
+
+    await inMemoryAnswerCommentsRepository.create(answerComment)
+
+    const result = await sut.execute({
+      answerCommentId: answerComment.id.toString(),
+      authorId: 'author-2',
+    })
+
+    expect(result.isLeft()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
+  })
+})
